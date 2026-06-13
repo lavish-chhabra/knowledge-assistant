@@ -1,23 +1,36 @@
 package com.augmentaion.rag.controller;
 
+import com.augmentaion.rag.dto.DocumentResponse;
 import com.augmentaion.rag.dto.DocumentUploadResponse;
 import com.augmentaion.rag.service.DocumentIngestionService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.augmentaion.rag.service.DocumentMetadataService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/documents")
+@RequiredArgsConstructor
 public class DocumentController {
 
     private final DocumentIngestionService ingestionService;
 
-    public DocumentController(
-            DocumentIngestionService ingestionService) {
+    private final DocumentMetadataService documentMetadataService;
 
-        this.ingestionService = ingestionService;
+    @GetMapping
+    public List<DocumentResponse> getAllDocuments() {
+
+        return documentMetadataService.getAllDocuments();
+    }
+
+    @GetMapping("/{documentId}")
+    public DocumentResponse getDocument(
+            @PathVariable UUID documentId) {
+
+        return documentMetadataService.getDocument(documentId);
     }
 
     @PostMapping("/upload")
@@ -29,4 +42,6 @@ public class DocumentController {
 
         return new DocumentUploadResponse("Document stored successfully");
     }
+
+
 }

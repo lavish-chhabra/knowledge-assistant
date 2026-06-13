@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/documents")
@@ -25,7 +26,7 @@ public class EmbeddingController {
             @RequestParam("file") MultipartFile file) {
 
         String content = documentService.extractText(file);
-        List<DocumentChunk> documentChunkList = documentService.chunkText(content);
+        List<DocumentChunk> documentChunkList = documentService.chunkText(UUID.randomUUID(), file.getName(), content);
         if (documentChunkList.isEmpty()) {
             throw new IllegalArgumentException("PDF does not contain extractable text");
         }

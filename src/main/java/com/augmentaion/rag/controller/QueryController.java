@@ -1,5 +1,6 @@
 package com.augmentaion.rag.controller;
 
+import com.augmentaion.rag.dto.RetrievedChunk;
 import jakarta.validation.constraints.NotBlank;
 import com.augmentaion.rag.service.RetrievalService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class QueryController {
     }
 
     @GetMapping("/search")
-    public List<String> search(
+    public List<RetrievedChunk> search(
             @RequestParam @NotBlank String question) {
 
         return retrievalService.search(question);

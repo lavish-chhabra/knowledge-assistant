@@ -1,34 +1,28 @@
 package com.augmentaion.rag.service;
 
 import com.augmentaion.rag.config.KnowledgeAssistantProperties;
+import com.augmentaion.rag.dto.RetrievedChunk;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class RetrievalService {
 
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final KnowledgeAssistantProperties properties;
 
-    public RetrievalService(
-            EmbeddingModel embeddingModel,
-            EmbeddingStore<TextSegment> embeddingStore,
-            KnowledgeAssistantProperties properties) {
-
-        this.embeddingModel = embeddingModel;
-        this.embeddingStore = embeddingStore;
-        this.properties = properties;
-    }
-
-    public List<String> search(String question) {
+    public List<RetrievedChunk> search(String question) {
 
         // step 1 -> embed the question/input text
         Embedding queryEmbedding = embeddingModel.embed(question).content();
@@ -45,7 +39,18 @@ public class RetrievalService {
         // step 4
         return result.matches()
                 .stream()
-                .map(match -> match.embedded().text())
+                .map(match -> {
+
+                    TextSegment segment =
+                            match.embedded();
+
+                    return new RetrievedChunk(
+                            segment.text(),
+                            segment.metadata().getString("fileName"),
+                            Integer.parseInt(Objects.requireNonNull(segment.metadata().getString("chunkNumber"))),
+                            match.score()
+                    );
+                })
                 .toList();
 
 

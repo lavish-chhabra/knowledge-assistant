@@ -1,45 +1,76 @@
 package com.augmentaion.rag.service;
 
 import com.augmentaion.rag.dto.DocumentChunk;
+import com.augmentaion.rag.entity.Document;
+import com.augmentaion.rag.enums.DocumentStatus;
+import com.augmentaion.rag.repository.DocumentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DocumentIngestionService {
 
+    private final DocumentRepository documentRepository;
     private final DocumentService documentService;
     private final VectorStoreService vectorStoreService;
 
-    public DocumentIngestionService(
-            DocumentService documentService,
-            VectorStoreService vectorStoreService) {
-
-        this.documentService = documentService;
-        this.vectorStoreService = vectorStoreService;
-    }
-
     public void ingest(MultipartFile file) {
 
-        // Step 1
-        String text =
-                documentService.extractText(file);
+        Document document = Document.builder()
+                .fileName(file.getOriginalFilename())
+                .uploadedBy("Lavish")
+                .status(DocumentStatus.PROCESSING)
+                .uploadedAt(LocalDateTime.now())
+                .fileSize(file.getSize())
+                .contentType(file.getContentType())
+                .build();
 
-        // Step 2
-        List<DocumentChunk> chunks =
-                documentService.chunkText(text);
+        document = documentRepository.save(document);
 
-        if (chunks.isEmpty()) {
-            throw new IllegalArgumentException("PDF does not contain extractable text");
-        }
+        try {
 
-        // Step 3
-        for (DocumentChunk chunk : chunks) {
+            // Extract text
+            String text =
+                    documentService.extractText(file);
 
-            vectorStoreService.storeChunk(
-                    chunk.content()
-            );
+            // Chunk text
+            List<DocumentChunk> chunks =
+                    documentService.chunkText(document.getId(), document.getFileName(), text);
+
+            if (chunks.isEmpty()) {
+
+                throw new IllegalArgumentException(
+                        "PDF does not contain extractable text");
+            }
+
+            // Store embeddings
+            for (DocumentChunk chunk : chunks) {
+
+                vectorStoreService.storeChunk(chunk);
+            }
+
+            // Update metadata
+            document.setChunkCount(
+                    (long) chunks.size());
+
+            document.setStatus(
+                    DocumentStatus.COMPLETED);
+
+            documentRepository.save(document);
+
+        } catch (Exception ex) {
+
+            document.setStatus(
+                    DocumentStatus.FAILED);
+
+            documentRepository.save(document);
+
+            throw ex;
         }
     }
 }

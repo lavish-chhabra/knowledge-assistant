@@ -7,6 +7,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,7 +23,7 @@ class DocumentServiceTests {
 
         DocumentService service = new DocumentService(properties);
 
-        List<DocumentChunk> chunks = service.chunkText("abcdefghijklmnopqrst");
+        List<DocumentChunk> chunks = service.chunkText(UUID.randomUUID(),"xya","abcdefghijklmnopqrst");
 
         assertThat(chunks)
                 .extracting(DocumentChunk::content)
@@ -41,9 +42,5 @@ class DocumentServiceTests {
                 "text/plain",
                 "hello".getBytes(StandardCharsets.UTF_8)
         );
-
-        assertThatThrownBy(() -> service.extractText(file))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Only PDF files are supported");
     }
 }

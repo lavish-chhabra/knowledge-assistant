@@ -2,6 +2,7 @@ package com.augmentaion.rag.service;
 
 import com.augmentaion.rag.config.KnowledgeAssistantProperties;
 import com.augmentaion.rag.dto.DocumentChunk;
+import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
@@ -13,17 +14,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class DocumentService {
 
     private static final String PDF_CONTENT_TYPE = "application/pdf";
 
     private final KnowledgeAssistantProperties properties;
 
-    public DocumentService(KnowledgeAssistantProperties properties) {
-        this.properties = properties;
-    }
-
     public String extractText(MultipartFile file) {
+
 
         validatePdf(file);
 
@@ -42,45 +41,67 @@ public class DocumentService {
         }
     }
 
-    public List<DocumentChunk> chunkText(String text) {
+    public List<DocumentChunk> chunkText(
+            UUID documentId,
+            String fileName,
+                String text) {
 
-        List<DocumentChunk> chunkList = new ArrayList<>();
-        int chunkSize = properties.getDocuments().getChunkSize();
-        int overlap = properties.getDocuments().getChunkOverlap();
+            List<DocumentChunk> chunkList = new ArrayList<>();
 
-        if (text == null || text.isBlank()) {
+            int chunkSize =
+                    properties.getDocuments().getChunkSize();
+
+            int overlap =
+                    properties.getDocuments().getChunkOverlap();
+
+            if (text == null || text.isBlank()) {
+                return chunkList;
+            }
+
+            if (overlap >= chunkSize) {
+                throw new IllegalStateException(
+                        "Document chunk overlap must be smaller than chunk size");
+            }
+
+            int step = chunkSize - overlap;
+
+            int chunkNumber = 1;
+
+            for (int start = 0; start < text.length(); start += step) {
+
+                int end =
+                        Math.min(text.length(), start + chunkSize);
+
+                String content =
+                        text.substring(start, end);
+
+                chunkList.add(
+                        new DocumentChunk(
+                                UUID.randomUUID().toString(),
+                                documentId,
+                                fileName,
+                                chunkNumber++,
+                                content
+                        )
+                );
+            }
+
             return chunkList;
         }
 
-        if (overlap >= chunkSize) {
-            throw new IllegalStateException(
-                    "Document chunk overlap must be smaller than chunk size");
+
+        private void validatePdf(MultipartFile file) {
+
+            if (file == null || file.isEmpty()) {
+                throw new IllegalArgumentException("A non-empty PDF file is required");
+            }
+
+            if (file.getSize() > properties.getDocuments().getMaxUploadSize().toBytes()) {
+                throw new IllegalArgumentException("PDF exceeds maximum upload size");
+            }
+
+            if (!PDF_CONTENT_TYPE.equalsIgnoreCase(file.getContentType())) {
+                throw new IllegalArgumentException("Only PDF files are supported");
+            }
         }
-
-        int step = chunkSize - overlap;
-
-        for(int start=0; start<text.length(); start+=step) {
-
-            int end = Math.min(text.length(),start+chunkSize);
-            String content = text.substring(start,end);
-
-            chunkList.add(new DocumentChunk(UUID.randomUUID().toString(),content));
-        }
-        return chunkList;
-    }
-
-    private void validatePdf(MultipartFile file) {
-
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("A non-empty PDF file is required");
-        }
-
-        if (file.getSize() > properties.getDocuments().getMaxUploadSize().toBytes()) {
-            throw new IllegalArgumentException("PDF exceeds maximum upload size");
-        }
-
-        if (!PDF_CONTENT_TYPE.equalsIgnoreCase(file.getContentType())) {
-            throw new IllegalArgumentException("Only PDF files are supported");
-        }
-    }
 }

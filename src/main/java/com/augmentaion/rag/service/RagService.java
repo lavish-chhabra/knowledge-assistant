@@ -1,50 +1,36 @@
 package com.augmentaion.rag.service;
 
+import com.augmentaion.rag.dto.RetrievedChunk;
 import dev.langchain4j.model.chat.ChatModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RagService {
 
     private final RetrievalService retrievalService;
     private final ChatModel chatModel;
-
-    public RagService(
-            RetrievalService retrievalService,
-            ChatModel chatModel) {
-
-        this.retrievalService = retrievalService;
-        this.chatModel = chatModel;
-    }
+    private final PromptService promptService;
 
     public String ask(String question) {
 
-        // Step 1: Retrieve relevant chunks
-        List<String> chunks =
+        List<RetrievedChunk> chunks =
                 retrievalService.search(question);
 
-        // Step 2: Merge chunks into context
-        String context =
-                String.join("\n\n", chunks);
+        String context = chunks.stream()
+                .map(RetrievedChunk::content)
+                .collect(Collectors.joining("\n\n"));
 
-        // Step 3: Create prompt
         String prompt =
-                """
-                You are a helpful assistant.
+                promptService.buildRagPrompt(
+                        context,
+                        question
+                );
 
-                Answer ONLY using the context below.
-
-                Context:
-                %s
-
-                Question:
-                %s
-                """
-                        .formatted(context, question);
-
-        // Step 4: Generate answer
         return chatModel.chat(prompt);
     }
 }

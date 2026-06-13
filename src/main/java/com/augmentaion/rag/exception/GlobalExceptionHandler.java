@@ -1,4 +1,4 @@
-package com.augmentaion.rag.controller;
+package com.augmentaion.rag.exception;
 
 import com.augmentaion.rag.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
