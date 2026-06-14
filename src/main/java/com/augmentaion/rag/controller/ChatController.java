@@ -27,18 +27,9 @@ public class ChatController {
         return chatService.chat(question);
     }
 
-    @PostMapping("/langchain/chat")
-    public AnswerResponse postLangchainChat(@RequestBody @Valid QuestionRequest request) {
-        return new AnswerResponse(chatService.chat(request.question()));
-    }
-
     @GetMapping("/chat")
     public String getChat(@RequestParam @NotBlank String question) {
         return ollamaService.ask(question);
     }
 
-    @PostMapping("/chat")
-    public AnswerResponse postChat(@RequestBody @Valid QuestionRequest request) {
-        return new AnswerResponse(ollamaService.ask(request.question()));
-    }
 }

@@ -26,17 +26,11 @@ public class RagController {
         this.ragService = ragService;
     }
 
-    @GetMapping("/ask")
-    public String ask(
-            @RequestParam @NotBlank String question) {
-
-        return ragService.ask(question);
-    }
 
     @PostMapping("/ask")
     public AnswerResponse ask(
             @RequestBody @Valid QuestionRequest request) {
 
-        return new AnswerResponse(ragService.ask(request.question()));
+        return ragService.ask(request.question());
     }
 }

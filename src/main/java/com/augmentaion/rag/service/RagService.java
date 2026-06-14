@@ -1,6 +1,8 @@
 package com.augmentaion.rag.service;
 
+import com.augmentaion.rag.dto.AnswerResponse;
 import com.augmentaion.rag.dto.RetrievedChunk;
+import com.augmentaion.rag.dto.SourceReference;
 import dev.langchain4j.model.chat.ChatModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,10 +18,20 @@ public class RagService {
     private final ChatModel chatModel;
     private final PromptService promptService;
 
-    public String ask(String question) {
+    public AnswerResponse ask(String question) {
 
         List<RetrievedChunk> chunks =
                 retrievalService.search(question);
+
+        List<SourceReference> sources =
+                chunks.stream()
+                        .map(chunk ->
+                                new SourceReference(
+                                        chunk.fileName(),
+                                        chunk.chunkNumber()
+                                ))
+                        .distinct()
+                        .toList();
 
         String context = chunks.stream()
                 .map(RetrievedChunk::content)
@@ -31,6 +43,7 @@ public class RagService {
                         question
                 );
 
-        return chatModel.chat(prompt);
+        String chatResponse = chatModel.chat(prompt);
+        return new AnswerResponse(chatResponse, sources);
     }
 }
