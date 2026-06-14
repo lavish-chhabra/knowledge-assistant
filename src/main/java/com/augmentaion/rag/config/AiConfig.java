@@ -17,6 +17,7 @@ public class AiConfig {
         return OllamaChatModel.builder()
                 .baseUrl(properties.getOllama().getBaseUrl())
                 .modelName(properties.getOllama().getChatModel())
+                .temperature(properties.getOllama().getTemperature())
                 .build();
     }
 

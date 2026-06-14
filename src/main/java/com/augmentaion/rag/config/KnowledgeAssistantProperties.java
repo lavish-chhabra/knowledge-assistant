@@ -1,10 +1,7 @@
 package com.augmentaion.rag.config;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
@@ -54,6 +51,9 @@ public class KnowledgeAssistantProperties {
         @NotBlank
         private String embeddingModel = "nomic-embed-text";
 
+        @NotNull
+        private double temperature = 0.0;
+
         private Duration timeout = Duration.ofSeconds(60);
 
         public String getBaseUrl() {
@@ -86,6 +86,10 @@ public class KnowledgeAssistantProperties {
 
         public void setTimeout(Duration timeout) {
             this.timeout = timeout;
+        }
+
+        public double getTemperature() {
+            return temperature;
         }
     }
 
