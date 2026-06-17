@@ -1,10 +1,11 @@
 package com.augmentaion.rag.service;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class PromptService {
@@ -13,12 +14,20 @@ public class PromptService {
 
     public PromptService() throws IOException {
 
-        ragPromptTemplate =
-                Files.readString(
-                        Path.of(
-                                "src/main/resources/prompts/rag-prompt.txt"
-                        )
+        ClassPathResource resource =
+                new ClassPathResource(
+                        "prompts/rag-prompt.txt"
                 );
+
+        try (InputStream inputStream =
+                     resource.getInputStream()) {
+
+            ragPromptTemplate =
+                    new String(
+                            inputStream.readAllBytes(),
+                            StandardCharsets.UTF_8
+                    );
+        }
     }
 
     public String buildRagPrompt(

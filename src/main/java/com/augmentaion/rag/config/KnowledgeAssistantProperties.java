@@ -2,44 +2,34 @@ package com.augmentaion.rag.config;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 
+@Getter
+@Setter
 @Validated
 @ConfigurationProperties(prefix = "knowledge-assistant")
 public class KnowledgeAssistantProperties {
 
     @Valid
-    private final Ollama ollama = new Ollama();
+    private Ollama ollama = new Ollama();
 
     @Valid
-    private final Qdrant qdrant = new Qdrant();
+    private Qdrant qdrant = new Qdrant();
 
     @Valid
-    private final Documents documents = new Documents();
+    private Documents documents = new Documents();
 
     @Valid
-    private final Retrieval retrieval = new Retrieval();
+    private Retrieval retrieval = new Retrieval();
 
-    public Ollama getOllama() {
-        return ollama;
-    }
-
-    public Qdrant getQdrant() {
-        return qdrant;
-    }
-
-    public Documents getDocuments() {
-        return documents;
-    }
-
-    public Retrieval getRetrieval() {
-        return retrieval;
-    }
-
+    @Getter
+    @Setter
     public static class Ollama {
 
         @NotBlank
@@ -51,48 +41,16 @@ public class KnowledgeAssistantProperties {
         @NotBlank
         private String embeddingModel = "nomic-embed-text";
 
-        @NotNull
+        @DecimalMin("0.0")
+        @DecimalMax("1.0")
         private double temperature = 0.0;
 
+        @NotNull
         private Duration timeout = Duration.ofSeconds(60);
-
-        public String getBaseUrl() {
-            return baseUrl;
-        }
-
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-        }
-
-        public String getChatModel() {
-            return chatModel;
-        }
-
-        public void setChatModel(String chatModel) {
-            this.chatModel = chatModel;
-        }
-
-        public String getEmbeddingModel() {
-            return embeddingModel;
-        }
-
-        public void setEmbeddingModel(String embeddingModel) {
-            this.embeddingModel = embeddingModel;
-        }
-
-        public Duration getTimeout() {
-            return timeout;
-        }
-
-        public void setTimeout(Duration timeout) {
-            this.timeout = timeout;
-        }
-
-        public double getTemperature() {
-            return temperature;
-        }
     }
 
+    @Getter
+    @Setter
     public static class Qdrant {
 
         @NotBlank
@@ -105,31 +63,12 @@ public class KnowledgeAssistantProperties {
         @NotBlank
         private String collectionName = "documents";
 
-        public String getHost() {
-            return host;
-        }
-
-        public void setHost(String host) {
-            this.host = host;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public void setPort(int port) {
-            this.port = port;
-        }
-
-        public String getCollectionName() {
-            return collectionName;
-        }
-
-        public void setCollectionName(String collectionName) {
-            this.collectionName = collectionName;
-        }
+        @Positive
+        private int vectorSize = 768;
     }
 
+    @Getter
+    @Setter
     public static class Documents {
 
         @Positive
@@ -138,44 +77,16 @@ public class KnowledgeAssistantProperties {
         @Min(0)
         private int chunkOverlap = 200;
 
-        private DataSize maxUploadSize = DataSize.ofMegabytes(10);
-
-        public int getChunkSize() {
-            return chunkSize;
-        }
-
-        public void setChunkSize(int chunkSize) {
-            this.chunkSize = chunkSize;
-        }
-
-        public int getChunkOverlap() {
-            return chunkOverlap;
-        }
-
-        public void setChunkOverlap(int chunkOverlap) {
-            this.chunkOverlap = chunkOverlap;
-        }
-
-        public DataSize getMaxUploadSize() {
-            return maxUploadSize;
-        }
-
-        public void setMaxUploadSize(DataSize maxUploadSize) {
-            this.maxUploadSize = maxUploadSize;
-        }
+        @NotNull
+        private DataSize maxUploadSize =
+                DataSize.ofMegabytes(10);
     }
 
+    @Getter
+    @Setter
     public static class Retrieval {
 
         @Positive
         private int maxResults = 3;
-
-        public int getMaxResults() {
-            return maxResults;
-        }
-
-        public void setMaxResults(int maxResults) {
-            this.maxResults = maxResults;
-        }
     }
 }
