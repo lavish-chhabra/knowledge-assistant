@@ -55,6 +55,18 @@ The application extracts document content, generates embeddings, stores vectors 
 
 ---
 
+## Screenshots
+
+### Upload Document
+
+![Upload Screen](docs/screenshots/upload-screen.png)
+
+### Chat Interface
+
+![Chat Interface](docs/screenshots/chat-screen.png)
+
+---
+
 ## Architecture
 
 ```text
