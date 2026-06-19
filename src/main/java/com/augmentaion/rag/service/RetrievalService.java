@@ -24,6 +24,7 @@ public class RetrievalService {
 
     public List<RetrievedChunk> search(String question) {
 
+        System.out.println(properties.getGemini().getApiKey());
         // step 1 -> embed the question/input text
         Embedding queryEmbedding = embeddingModel.embed(question).content();
 

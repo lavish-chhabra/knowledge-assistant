@@ -8,8 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.Duration;
-
 @Getter
 @Setter
 @Validated
@@ -17,7 +15,7 @@ import java.time.Duration;
 public class KnowledgeAssistantProperties {
 
     @Valid
-    private Ollama ollama = new Ollama();
+    private final Gemini gemini = new Gemini();
 
     @Valid
     private Qdrant qdrant = new Qdrant();
@@ -30,23 +28,16 @@ public class KnowledgeAssistantProperties {
 
     @Getter
     @Setter
-    public static class Ollama {
+    public static class Gemini {
 
         @NotBlank
-        private String baseUrl = "http://localhost:11434";
+        private String apiKey;
 
         @NotBlank
-        private String chatModel = "qwen3";
+        private String chatModel = "gemini-2.5-flash";
 
         @NotBlank
-        private String embeddingModel = "nomic-embed-text";
-
-        @DecimalMin("0.0")
-        @DecimalMax("1.0")
-        private double temperature = 0.0;
-
-        @NotNull
-        private Duration timeout = Duration.ofSeconds(60);
+        private String embeddingModel = "text-embedding-004";
     }
 
     @Getter

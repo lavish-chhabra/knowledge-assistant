@@ -61,10 +61,10 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-ollama -->
+        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-google-ai-gemini -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-ollama</artifactId>
+            <artifactId>langchain4j-google-ai-gemini</artifactId>
             <version>1.12.2</version>
             <scope>compile</scope>
         </dependency>
