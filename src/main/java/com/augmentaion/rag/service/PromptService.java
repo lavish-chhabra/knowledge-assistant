@@ -32,9 +32,11 @@ public class PromptService {
 
     public String buildRagPrompt(
             String context,
+            String conversationHistory,
             String question) {
 
         return ragPromptTemplate
+                .replace("{{conversationHistory}}", conversationHistory)
                 .replace("{{context}}", context)
                 .replace("{{question}}", question);
     }

@@ -17,8 +17,24 @@ public class RagService {
     private final RetrievalService retrievalService;
     private final ChatModel chatModel;
     private final PromptService promptService;
+    private final ChatMemoryService chatMemoryService;
 
-    public AnswerResponse ask(String question) {
+    public AnswerResponse ask(
+            String sessionId,
+            String question){
+
+        //get conversation history
+        String conversationHistory =
+                chatMemoryService.getConversation(
+                        sessionId
+                );
+
+        //saving user question for future use
+        chatMemoryService.addMessage(
+                sessionId,
+                "User",
+                question
+        );
 
         List<RetrievedChunk> chunks =
                 retrievalService.search(question);
@@ -40,10 +56,18 @@ public class RagService {
         String prompt =
                 promptService.buildRagPrompt(
                         context,
+                        conversationHistory,
                         question
                 );
 
         String chatResponse = chatModel.chat(prompt);
+
+        //saving LLM response for future use
+        chatMemoryService.addMessage(
+                sessionId,
+                "Assistant",
+                chatResponse
+        );
         return new AnswerResponse(chatResponse, sources);
     }
 }

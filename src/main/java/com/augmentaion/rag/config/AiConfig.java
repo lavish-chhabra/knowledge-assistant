@@ -1,9 +1,11 @@
 package com.augmentaion.rag.config;
 
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,6 +29,16 @@ public class AiConfig {
         return GoogleAiEmbeddingModel.builder()
                 .apiKey(properties.getGemini().getApiKey())
                 .modelName(properties.getGemini().getEmbeddingModel())
+                .build();
+    }
+
+    @Bean
+    StreamingChatModel streamingChatModel(
+            KnowledgeAssistantProperties properties) {
+
+        return GoogleAiGeminiStreamingChatModel.builder()
+                .apiKey(properties.getGemini().getApiKey())
+                .modelName(properties.getGemini().getChatModel())
                 .build();
     }
 }
