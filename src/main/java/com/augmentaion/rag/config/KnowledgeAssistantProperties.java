@@ -52,6 +52,9 @@ public class KnowledgeAssistantProperties {
         private int port = 6334;
 
         @NotBlank
+        private String apiKey;
+
+        @NotBlank
         private String collectionName = "documents";
 
         @Positive

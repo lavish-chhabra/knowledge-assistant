@@ -27,10 +27,12 @@ public class QdrantConfig {
 
         return new QdrantClient(
                 QdrantGrpcClient.newBuilder(
-                        properties.getQdrant().getHost(),
-                        properties.getQdrant().getPort(),
-                        false
-                ).build()
+                                properties.getQdrant().getHost(),
+                                properties.getQdrant().getPort(),
+                                true
+                        )
+                        .withApiKey(properties.getQdrant().getApiKey())
+                        .build()
         );
     }
 }
