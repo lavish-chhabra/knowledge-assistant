@@ -37,8 +37,6 @@ public class RagController {
     public SseEmitter stream(
             @RequestBody QuestionRequest request) {
 
-        return streamingRagService.streamAnswer(
-                request.question()
-        );
+        return streamingRagService.streamAnswer(request.sessionId(),request.question());
     }
 }
